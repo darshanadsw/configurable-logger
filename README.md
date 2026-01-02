@@ -187,10 +187,15 @@ Rules are matched using AspectJ pointcut expressions:
 3. **Method Patterns**: `com.example.repository.UserRepository.save`
    - Matches the specific method
    - Converted to: `execution(* com.example.repository.UserRepository.save(..))`
+   - **Detection**: Pattern is treated as a method pattern if:
+     - It has at least 2 dots (separating package, class, and method)
+     - The last segment (method name) starts with a lowercase letter (Java naming convention)
+   - **Note**: If your method name starts with uppercase, use a full AspectJ expression instead
 
 4. **AspectJ Expressions**: `execution(* com.example..*(..))`
    - Supports full AspectJ pointcut expressions
    - Used as-is without conversion
+   - Use this for advanced patterns or when automatic detection doesn't work
 
 **Matching Behavior**:
 - Rules are evaluated **in order** - first matching rule wins
@@ -462,3 +467,4 @@ When disabled, configuration changes require an application restart to take effe
 3. Ensure pattern matches the actual class/method names
 4. Try a broader pattern to test matching
 5. Check AspectJ pointcut expression if using custom expressions
+6. **For method patterns**: Ensure the method name starts with lowercase letter (e.g., `save`, `processPayment`). If your method starts with uppercase, use a full AspectJ expression: `execution(* com.example.Class.MethodName(..))`
