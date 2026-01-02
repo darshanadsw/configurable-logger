@@ -28,6 +28,16 @@ public class LogPatternRegistry {
         }
     }
     private final List<RuleEntry> ruleEntries = new ArrayList<>();
+    
+    /**
+     * Enum representing different types of pattern expressions.
+     */
+    private enum PatternType {
+        ASPECTJ,    // Already an AspectJ expression (execution, within, @)
+        PACKAGE,    // Package pattern ending with .*
+        METHOD,     // Method pattern: Package.Class.methodName
+        CLASS       // Class pattern: Package.Class
+    }
 
     public LogPatternRegistry(MethodLoggerProperties defaultConfigs, Environment environment) {
         this.environment = environment;
@@ -70,44 +80,86 @@ public class LogPatternRegistry {
 
     private AspectJExpressionPointcut createPointcut(String pattern) {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-        String expression = pattern;
+        PatternType type = determinePatternType(pattern);
         
-        // If it's already an AspectJ expression, use as-is
-        if (!pattern.startsWith("execution") && !pattern.startsWith("within") && !pattern.startsWith("@")) {
-            // Package pattern: ends with .*
-            if (pattern.endsWith(".*")) {
-                // Remove .* and convert to package pattern with subpackages
-                String packagePattern = pattern.substring(0, pattern.length() - 2);
-                expression = "execution(* " + packagePattern + "..*(..))";
-            }
-            // Method pattern: check if it looks like Package.Class.methodName
-            // Heuristic: if last segment (after last dot) looks like a method name
-            // and there are at least 2 dots, treat as method pattern
-            else {
-                int lastDotIndex = pattern.lastIndexOf('.');
-                if (lastDotIndex > 0 && lastDotIndex < pattern.length() - 1) {
-                    String lastSegment = pattern.substring(lastDotIndex + 1);
-                    // If last segment starts with lowercase (Java method convention)
-                    // and pattern has at least 2 dots, treat as method pattern
-                    if (lastSegment.length() > 0 && 
-                        Character.isLowerCase(lastSegment.charAt(0)) && 
-                        countOccurrences(pattern, '.') >= 2) {
-                        // Method pattern: Package.Class.methodName
-                        expression = "execution(* " + pattern + "(..))";
-                    } else {
-                        // Class pattern: Package.Class
-                        expression = "execution(* " + pattern + ".*(..))";
-                    }
-                } else {
-                    // Class pattern (single segment or no dots)
-                    expression = "execution(* " + pattern + ".*(..))";
-                }
-            }
-        }
+        String expression = switch (type) {
+            case ASPECTJ -> pattern;
+            case PACKAGE -> convertToPackageExpression(pattern);
+            case METHOD -> convertToMethodExpression(pattern);
+            case CLASS -> convertToClassExpression(pattern);
+        };
+        
         pointcut.setExpression(expression);
         return pointcut;
     }
     
+    /**
+     * Determines the type of pattern based on its structure.
+     */
+    private PatternType determinePatternType(String pattern) {
+        // Check if it's already an AspectJ expression
+        if (pattern.startsWith("execution") || pattern.startsWith("within") || pattern.startsWith("@")) {
+            return PatternType.ASPECTJ;
+        }
+        
+        // Check if it's a package pattern (ends with .*)
+        if (pattern.endsWith(".*")) {
+            return PatternType.PACKAGE;
+        }
+        
+        // Check if it's a method pattern
+        if (isMethodPattern(pattern)) {
+            return PatternType.METHOD;
+        }
+        
+        // Default to class pattern
+        return PatternType.CLASS;
+    }
+    
+    /**
+     * Checks if a pattern represents a method pattern (Package.Class.methodName).
+     * Heuristic: pattern has at least 2 dots and last segment starts with lowercase.
+     */
+    private boolean isMethodPattern(String pattern) {
+        int lastDotIndex = pattern.lastIndexOf('.');
+        if (lastDotIndex <= 0 || lastDotIndex >= pattern.length() - 1) {
+            return false;
+        }
+        
+        String lastSegment = pattern.substring(lastDotIndex + 1);
+        return lastSegment.length() > 0 
+            && Character.isLowerCase(lastSegment.charAt(0))
+            && countOccurrences(pattern, '.') >= 2;
+    }
+    
+    /**
+     * Converts a package pattern to AspectJ expression.
+     * Example: "com.example.service.*" -> "execution(* com.example.service..*(..))"
+     */
+    private String convertToPackageExpression(String pattern) {
+        String packagePattern = pattern.substring(0, pattern.length() - 2);
+        return "execution(* " + packagePattern + "..*(..))";
+    }
+    
+    /**
+     * Converts a method pattern to AspectJ expression.
+     * Example: "com.example.service.MyService.processPayment" -> "execution(* com.example.service.MyService.processPayment(..))"
+     */
+    private String convertToMethodExpression(String pattern) {
+        return "execution(* " + pattern + "(..))";
+    }
+    
+    /**
+     * Converts a class pattern to AspectJ expression.
+     * Example: "com.example.service.MyService" -> "execution(* com.example.service.MyService.*(..))"
+     */
+    private String convertToClassExpression(String pattern) {
+        return "execution(* " + pattern + ".*(..))";
+    }
+    
+    /**
+     * Counts occurrences of a character in a string.
+     */
     private int countOccurrences(String str, char ch) {
         int count = 0;
         for (int i = 0; i < str.length(); i++) {
