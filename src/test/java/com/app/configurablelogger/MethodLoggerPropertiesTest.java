@@ -1,5 +1,8 @@
 package com.app.configurablelogger;
 
+import com.app.configurablelogger.config.MethodLoggerProperties;
+import com.app.configurablelogger.model.LoggingRule;
+import com.app.configurablelogger.model.LoggingRuleConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +19,6 @@ class MethodLoggerPropertiesTest {
 
     @Test
     void testGetDefaultConfig_WithDefaultValues() {
-        // Default values should be used
         properties.setEnabled(true);
         properties.setLogArguments(true);
         properties.setLogReturnValue(true);
@@ -24,7 +26,7 @@ class MethodLoggerPropertiesTest {
         properties.setMaxReturnSize(-1);
         properties.setMaskSensitiveFields(false);
 
-        LoggingRule.LoggingRuleConfig config = properties.getDefaultConfig();
+        LoggingRuleConfig config = properties.getDefaultConfig();
 
         assertThat(config.isEnabled()).isTrue();
         assertThat(config.isLogArguments()).isTrue();
@@ -43,7 +45,7 @@ class MethodLoggerPropertiesTest {
         properties.setMaxReturnSize(500);
         properties.setMaskSensitiveFields(true);
 
-        LoggingRule.LoggingRuleConfig config = properties.getDefaultConfig();
+        LoggingRuleConfig config = properties.getDefaultConfig();
 
         assertThat(config.isEnabled()).isFalse();
         assertThat(config.isLogArguments()).isFalse();
@@ -55,8 +57,8 @@ class MethodLoggerPropertiesTest {
 
     @Test
     void testGetDefaultConfig_ReturnsNewInstance() {
-        LoggingRule.LoggingRuleConfig config1 = properties.getDefaultConfig();
-        LoggingRule.LoggingRuleConfig config2 = properties.getDefaultConfig();
+        LoggingRuleConfig config1 = properties.getDefaultConfig();
+        LoggingRuleConfig config2 = properties.getDefaultConfig();
 
         assertThat(config1).isNotSameAs(config2);
         assertThat(config1).isEqualTo(config2);

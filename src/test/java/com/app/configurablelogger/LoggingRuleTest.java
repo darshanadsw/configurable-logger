@@ -1,5 +1,7 @@
 package com.app.configurablelogger;
 
+import com.app.configurablelogger.model.LoggingRule;
+import com.app.configurablelogger.model.LoggingRuleConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,9 +13,8 @@ class LoggingRuleTest {
         LoggingRule rule = new LoggingRule();
         rule.setPattern("com.example.service.*");
         rule.setEnabled(true);
-        // All properties are null
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setEnabled(true);
         defaults.setLogArguments(true);
         defaults.setLogReturnValue(true);
@@ -21,14 +22,14 @@ class LoggingRuleTest {
         defaults.setMaxReturnSize(500);
         defaults.setMaskSensitiveFields(true);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.isEnabled()).isTrue(); // From rule
-        assertThat(merged.isLogArguments()).isTrue(); // From defaults
-        assertThat(merged.isLogReturnValue()).isTrue(); // From defaults
-        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(100); // From defaults
-        assertThat(merged.getMaxReturnSize()).isEqualTo(500); // From defaults
-        assertThat(merged.isMaskSensitiveFields()).isTrue(); // From defaults
+        assertThat(merged.isEnabled()).isTrue();
+        assertThat(merged.isLogArguments()).isTrue();
+        assertThat(merged.isLogReturnValue()).isTrue();
+        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(100);
+        assertThat(merged.getMaxReturnSize()).isEqualTo(500);
+        assertThat(merged.isMaskSensitiveFields()).isTrue();
     }
 
     @Test
@@ -42,7 +43,7 @@ class LoggingRuleTest {
         rule.setMaxReturnSize(1000);
         rule.setMaskSensitiveFields(false);
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setEnabled(true);
         defaults.setLogArguments(true);
         defaults.setLogReturnValue(true);
@@ -50,14 +51,14 @@ class LoggingRuleTest {
         defaults.setMaxReturnSize(500);
         defaults.setMaskSensitiveFields(true);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.isEnabled()).isFalse(); // From rule
-        assertThat(merged.isLogArguments()).isFalse(); // From rule
-        assertThat(merged.isLogReturnValue()).isFalse(); // From rule
-        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(200); // From rule
-        assertThat(merged.getMaxReturnSize()).isEqualTo(1000); // From rule
-        assertThat(merged.isMaskSensitiveFields()).isFalse(); // From rule
+        assertThat(merged.isEnabled()).isFalse();
+        assertThat(merged.isLogArguments()).isFalse();
+        assertThat(merged.isLogReturnValue()).isFalse();
+        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(200);
+        assertThat(merged.getMaxReturnSize()).isEqualTo(1000);
+        assertThat(merged.isMaskSensitiveFields()).isFalse();
     }
 
     @Test
@@ -65,11 +66,10 @@ class LoggingRuleTest {
         LoggingRule rule = new LoggingRule();
         rule.setPattern("com.example.service.*");
         rule.setEnabled(true);
-        rule.setLogArguments(false); // Override
-        rule.setMinExecutionTimeMs(300L); // Override
-        // logReturnValue, maxReturnSize, maskSensitiveFields are null
+        rule.setLogArguments(false);
+        rule.setMinExecutionTimeMs(300L);
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setEnabled(true);
         defaults.setLogArguments(true);
         defaults.setLogReturnValue(true);
@@ -77,14 +77,14 @@ class LoggingRuleTest {
         defaults.setMaxReturnSize(500);
         defaults.setMaskSensitiveFields(true);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.isEnabled()).isTrue(); // From rule
-        assertThat(merged.isLogArguments()).isFalse(); // From rule (overridden)
-        assertThat(merged.isLogReturnValue()).isTrue(); // From defaults
-        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(300); // From rule (overridden)
-        assertThat(merged.getMaxReturnSize()).isEqualTo(500); // From defaults
-        assertThat(merged.isMaskSensitiveFields()).isTrue(); // From defaults
+        assertThat(merged.isEnabled()).isTrue();
+        assertThat(merged.isLogArguments()).isFalse();
+        assertThat(merged.isLogReturnValue()).isTrue();
+        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(300);
+        assertThat(merged.getMaxReturnSize()).isEqualTo(500);
+        assertThat(merged.isMaskSensitiveFields()).isTrue();
     }
 
     @Test
@@ -92,14 +92,14 @@ class LoggingRuleTest {
         LoggingRule rule = new LoggingRule();
         rule.setPattern("com.example.service.*");
         rule.setEnabled(true);
-        rule.setLogArguments(false); // Explicitly false, not null
+        rule.setLogArguments(false);
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setLogArguments(true);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.isLogArguments()).isFalse(); // False overrides true
+        assertThat(merged.isLogArguments()).isFalse();
     }
 
     @Test
@@ -107,14 +107,14 @@ class LoggingRuleTest {
         LoggingRule rule = new LoggingRule();
         rule.setPattern("com.example.service.*");
         rule.setEnabled(true);
-        rule.setMinExecutionTimeMs(0L); // Explicitly 0, not null
+        rule.setMinExecutionTimeMs(0L);
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setMinExecutionTimeMs(100L);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(0); // 0 overrides 100
+        assertThat(merged.getMinExecutionTimeMs()).isEqualTo(0);
     }
 
     @Test
@@ -122,14 +122,14 @@ class LoggingRuleTest {
         LoggingRule rule = new LoggingRule();
         rule.setPattern("com.example.service.*");
         rule.setEnabled(true);
-        rule.setMaxReturnSize(-1); // Explicitly -1, not null
+        rule.setMaxReturnSize(-1);
 
-        LoggingRule.LoggingRuleConfig defaults = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig defaults = new LoggingRuleConfig();
         defaults.setMaxReturnSize(500);
 
-        LoggingRule.LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
+        LoggingRuleConfig merged = rule.mergeWithDefaults(defaults);
 
-        assertThat(merged.getMaxReturnSize()).isEqualTo(-1); // -1 overrides 500
+        assertThat(merged.getMaxReturnSize()).isEqualTo(-1);
     }
 }
 

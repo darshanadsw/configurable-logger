@@ -467,4 +467,8 @@ When disabled, configuration changes require an application restart to take effe
 3. Ensure pattern matches the actual class/method names
 4. Try a broader pattern to test matching
 5. Check AspectJ pointcut expression if using custom expressions
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 6. **For method patterns**: Ensure the method name starts with lowercase letter (e.g., `save`, `processPayment`). If your method starts with uppercase, use a full AspectJ expression: `execution(* com.example.Class.MethodName(..))`

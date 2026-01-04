@@ -1,2 +1,2 @@
-com.app.configurablelogger.ConfigurableLoggerAutoConfiguration
+com.app.configurablelogger.config.ConfigurableLoggerAutoConfiguration
 

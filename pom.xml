@@ -8,28 +8,29 @@
         <version>3.2.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
+    <groupId>com.app</groupId>
     <artifactId>configurable-logger</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>configurable-logger</name>
     <description>A lightweight Spring Boot library for dynamic, runtime-configurable method logging.</description>
-    <url>https://github.com/your-username/configurable-logger</url>
+    <url>https://github.com/darshanadsw/configurable-logger</url>
     <licenses>
         <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
     <developers>
         <developer>
-            <name>Your Name</name>
-            <email>your-email@example.com</email>
+            <name>Darshana Welikala</name>
+            <email>darshanadsw@gmail.com</email>
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git://github.com/your-username/configurable-logger.git</connection>
-        <developerConnection>scm:git:ssh://github.com:your-username/configurable-logger.git</developerConnection>
-        <url>https://github.com/your-username/configurable-logger/tree/main</url>
+        <connection>scm:git:git://github.com/darshanadsw/configurable-logger.git</connection>
+        <developerConnection>scm:git:ssh://github.com:darshanadsw/configurable-logger.git</developerConnection>
+        <url>https://github.com/darshanadsw/configurable-logger/tree/main</url>
     </scm>
     <properties>
         <java.version>17</java.version>
@@ -50,11 +51,6 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -79,15 +75,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
             </plugin>
         </plugins>
     </build>

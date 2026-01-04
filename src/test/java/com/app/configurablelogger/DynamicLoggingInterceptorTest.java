@@ -1,5 +1,6 @@
 package com.app.configurablelogger;
 
+import com.app.configurablelogger.model.LoggingRuleConfig;
 import com.example.service.TestService;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ class DynamicLoggingInterceptorTest {
     @BeforeEach
     void setUp() {
         interceptor = new DynamicLoggingInterceptor(registry);
+        lenient().when(registry.isLoggingEnabled()).thenReturn(true);
     }
     
     private MethodInvocation createInvocation(String methodName, Class<?>[] paramTypes, Object[] args, Object returnValue) throws Throwable {
@@ -63,7 +65,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_DisabledRule_ProceedsWithoutLogging() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(false);
 
         when(registry.getMatchingRuleConfig(any(Method.class), any(Class.class))).thenReturn(config);
@@ -77,7 +79,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithMatchingRule_LogsAndProceeds() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(true);
         config.setLogReturnValue(true);
@@ -96,7 +98,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithMaskedSensitiveFields_MasksArguments() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(true);
         config.setLogReturnValue(true);
@@ -114,7 +116,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithMaskedSensitiveFields_MasksReturnValue() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "sensitive-data");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(false);
         config.setLogReturnValue(true);
@@ -132,7 +134,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithoutLogArguments_DoesNotLogArguments() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(false);
         config.setLogReturnValue(true);
@@ -149,7 +151,7 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithoutLogReturnValue_DoesNotLogReturnValue() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(true);
         config.setLogReturnValue(false);
@@ -166,11 +168,11 @@ class DynamicLoggingInterceptorTest {
     @Test
     void testInvoke_WithExecutionTimeThreshold_BelowThreshold_DoesNotLogCompletion() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "processed");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(true);
         config.setLogReturnValue(true);
-        config.setMinExecutionTimeMs(100); // 100ms threshold
+        config.setMinExecutionTimeMs(100);
 
         when(registry.getMatchingRuleConfig(any(Method.class), any(Class.class))).thenReturn(config);
 
@@ -178,19 +180,17 @@ class DynamicLoggingInterceptorTest {
 
         assertThat(result).isEqualTo("processed");
         verify(invocation, times(1)).proceed();
-        // Completion log would only appear if execution time >= 100ms
-        // Since we're mocking, execution time will be minimal
     }
 
     @Test
     void testInvoke_WithMaxReturnSize_TruncatesLongReturnValue() throws Throwable {
         MethodInvocation invocation = createInvocation("processPayment", new Class[]{String.class}, new Object[]{"100"}, "very-long-return-value");
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(false);
         config.setLogReturnValue(true);
         config.setMinExecutionTimeMs(0);
-        config.setMaxReturnSize(10); // Limit to 10 characters
+        config.setMaxReturnSize(10);
 
         when(registry.getMatchingRuleConfig(any(Method.class), any(Class.class))).thenReturn(config);
 
@@ -198,7 +198,6 @@ class DynamicLoggingInterceptorTest {
 
         assertThat(result).isEqualTo("very-long-return-value");
         verify(invocation, times(1)).proceed();
-        // The logging would truncate, but the actual return value is unchanged
     }
 
     @Test
@@ -206,7 +205,7 @@ class DynamicLoggingInterceptorTest {
         RuntimeException exception = new RuntimeException("Test exception");
         MethodInvocation invocation = createInvocationWithException("processPayment", new Class[]{String.class}, new Object[]{"100"}, exception);
         
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(true);
         config.setLogReturnValue(true);
@@ -233,7 +232,7 @@ class DynamicLoggingInterceptorTest {
         lenient().when(invocation.getArguments()).thenReturn(new Object[0]);
         when(invocation.proceed()).thenReturn(null);
         
-        LoggingRule.LoggingRuleConfig config = new LoggingRule.LoggingRuleConfig();
+        LoggingRuleConfig config = new LoggingRuleConfig();
         config.setEnabled(true);
         config.setLogArguments(false);
         config.setLogReturnValue(true);

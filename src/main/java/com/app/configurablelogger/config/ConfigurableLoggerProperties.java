@@ -1,9 +1,7 @@
-package com.app.configurablelogger;
+package com.app.configurablelogger.config;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Data
 @ConfigurationProperties(prefix = "configurable.logger")
 public class ConfigurableLoggerProperties {
 
@@ -19,4 +17,20 @@ public class ConfigurableLoggerProperties {
      * Defaults to true if Spring Cloud Config is available.
      */
     private boolean autoRefresh = true;
+
+    public String getBasePackage() {
+        return basePackage;
+    }
+
+    public void setBasePackage(String basePackage) {
+        this.basePackage = basePackage;
+    }
+
+    public boolean isAutoRefresh() {
+        return autoRefresh;
+    }
+
+    public void setAutoRefresh(boolean autoRefresh) {
+        this.autoRefresh = autoRefresh;
+    }
 }

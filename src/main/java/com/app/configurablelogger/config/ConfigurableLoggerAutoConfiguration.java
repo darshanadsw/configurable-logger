@@ -1,6 +1,10 @@
-package com.app.configurablelogger;
+package com.app.configurablelogger.config;
 
-import lombok.extern.slf4j.Slf4j;
+import com.app.configurablelogger.DynamicLoggingInterceptor;
+import com.app.configurablelogger.LogPatternRegistry;
+import com.app.configurablelogger.PatternPointcutConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -19,8 +23,13 @@ import org.springframework.core.env.Environment;
 public class ConfigurableLoggerAutoConfiguration {
 
     @Bean
-    public LogPatternRegistry logPatternRegistry(MethodLoggerProperties defaultConfigs, Environment environment) {
-        return new LogPatternRegistry(defaultConfigs, environment);
+    public PatternPointcutConverter patternPointcutConverter() {
+        return new PatternPointcutConverter();
+    }
+
+    @Bean
+    public LogPatternRegistry logPatternRegistry(MethodLoggerProperties defaultConfigs, Environment environment, PatternPointcutConverter patternConverter) {
+        return new LogPatternRegistry(defaultConfigs, environment, patternConverter);
     }
 
     @Bean
@@ -46,7 +55,6 @@ public class ConfigurableLoggerAutoConfiguration {
      * Auto-refresh configuration that listens to Spring Cloud Config refresh events.
      * Only activated when Spring Cloud Context is on the classpath and auto-refresh is enabled.
      */
-    @Slf4j
     @Configuration
     @ConditionalOnClass(name = "org.springframework.cloud.context.environment.EnvironmentChangeEvent")
     @ConditionalOnProperty(
@@ -56,6 +64,8 @@ public class ConfigurableLoggerAutoConfiguration {
         matchIfMissing = true
     )
     static class CloudConfigAutoRefreshConfiguration {
+
+        private static final Logger log = LoggerFactory.getLogger(CloudConfigAutoRefreshConfiguration.class);
 
         private final LogPatternRegistry registry;
 

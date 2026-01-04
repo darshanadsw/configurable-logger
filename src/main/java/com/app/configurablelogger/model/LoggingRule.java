@@ -1,11 +1,8 @@
-package com.app.configurablelogger;
-
-import lombok.Data;
+package com.app.configurablelogger.model;
 
 /**
  * Represents a logging rule with a pattern (package/class/method) and its specific configuration.
  */
-@Data
 public class LoggingRule {
     /**
      * Pattern to match (package, class, or method).
@@ -60,18 +57,61 @@ public class LoggingRule {
         config.setMaskSensitiveFields(maskSensitiveFields != null ? maskSensitiveFields : defaults.isMaskSensitiveFields());
         return config;
     }
-    
-    /**
-     * Configuration object for a logging rule.
-     */
-    @Data
-    public static class LoggingRuleConfig {
-        private boolean enabled = true;
-        private boolean logArguments = true;
-        private boolean logReturnValue = true;
-        private long minExecutionTimeMs = 0;
-        private int maxReturnSize = -1;
-        private boolean maskSensitiveFields = false;
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getLogArguments() {
+        return logArguments;
+    }
+
+    public void setLogArguments(Boolean logArguments) {
+        this.logArguments = logArguments;
+    }
+
+    public Boolean getLogReturnValue() {
+        return logReturnValue;
+    }
+
+    public void setLogReturnValue(Boolean logReturnValue) {
+        this.logReturnValue = logReturnValue;
+    }
+
+    public Long getMinExecutionTimeMs() {
+        return minExecutionTimeMs;
+    }
+
+    public void setMinExecutionTimeMs(Long minExecutionTimeMs) {
+        this.minExecutionTimeMs = minExecutionTimeMs;
+    }
+
+    public Integer getMaxReturnSize() {
+        return maxReturnSize;
+    }
+
+    public void setMaxReturnSize(Integer maxReturnSize) {
+        this.maxReturnSize = maxReturnSize;
+    }
+
+    public Boolean getMaskSensitiveFields() {
+        return maskSensitiveFields;
+    }
+
+    public void setMaskSensitiveFields(Boolean maskSensitiveFields) {
+        this.maskSensitiveFields = maskSensitiveFields;
     }
 }
 
