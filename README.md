@@ -18,7 +18,7 @@ Add the dependency to your project's `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.example</groupId>
+    <groupId>com.app</groupId>
     <artifactId>configurable-logger</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
